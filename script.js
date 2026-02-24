@@ -16,9 +16,7 @@ function checkLogin() {
         document.getElementById('mainApp').style.display = 'block';
         document.body.style.overflow = 'auto';
         
-        // ယနေ့ရက်စွဲကို Calendar တွင် Local အချိန်အတိုင်း သတ်မှတ်ရန်
         document.getElementById('dateField').value = getTodayLocal();
-        
         loadData(); 
     } else {
         alert("PIN မှားယွင်းနေပါသည်။");
@@ -35,6 +33,9 @@ function toggleSidebar() {
 
 // ၃။ Sheet ပြောင်းခြင်း
 function changeSheet(name, currency, element) {
+    // Summary ကြည့်ပြီးပြန်လာလျှင် Form ပြန်ပြရန်
+    document.getElementById('entryForm').parentElement.style.display = 'block';
+    
     document.getElementById('sheetNameInput').value = name;
     document.getElementById('headerTitle').innerText = name;
     document.getElementById('currencyText').innerText = currency;
@@ -86,19 +87,18 @@ async function loadData() {
     }
 }
 
-// ၅။ စာရင်းအသစ်သွင်းခြင်း (Timezone ကင်းလွတ်သော ရက်စွဲပြင်ဆင်မှု)
+// ၅။ စာရင်းအသစ်သွင်းခြင်း
 document.getElementById('entryForm').onsubmit = async (e) => {
     e.preventDefault();
     const submitBtn = e.target.querySelector('button');
     submitBtn.disabled = true;
     submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> SENDING...';
 
-    // ရက်စွဲ format ကို input မှ တိုက်ရိုက်ယူပြီး DD/MM/YYYY ပြောင်းခြင်း
-    const rawDate = document.getElementById('dateField').value; // YYYY-MM-DD
+    const rawDate = document.getElementById('dateField').value;
     let formattedDate = "";
     if(rawDate) {
         const parts = rawDate.split("-"); 
-        formattedDate = `${parts[2]}/${parts[1]}/${parts[0]}`; // DD/MM/YYYY
+        formattedDate = `${parts[2]}/${parts[1]}/${parts[0]}`;
     }
 
     const formData = new FormData(e.target);
@@ -118,10 +118,7 @@ document.getElementById('entryForm').onsubmit = async (e) => {
             body: params
         });
         e.target.reset();
-        
-        // Reset လုပ်ပြီးလျှင် Local ရက်စွဲကို ပြန်ဖြည့်ထားပေးရန်
         document.getElementById('dateField').value = getTodayLocal();
-        
         alert("စာရင်းသွင်းပြီးပါပြီ။");
         loadData(); 
     } catch (error) {
@@ -132,26 +129,46 @@ document.getElementById('entryForm').onsubmit = async (e) => {
     }
 };
 
-// ၆။ Summary Report ထုတ်ခြင်း
+// ၆။ Summary Report ထုတ်ခြင်း (FIXED: Bar/UI ပြဿနာ ဖြေရှင်းပြီး)
 async function showSummaryReport(element) {
     const historyList = document.getElementById('historyList');
+    const formContainer = document.getElementById('entryForm').parentElement; // Form အကွက်ကို ယူသည်
+
+    // UI အပြောင်းအလဲ - Form ကို ခေတ္တဖျောက်မည်
+    formContainer.style.display = 'none';
     historyList.innerHTML = '<div class="text-center p-4"><i class="fas fa-spinner fa-spin"></i> Generating Report...</div>';
     
+    document.querySelectorAll('.menu-item').forEach(item => item.classList.remove('active'));
+    element.classList.add('active');
+    document.getElementById('headerTitle').innerText = "ALL GROUPS SUMMARY";
+
     try {
         const response = await fetch(WEB_APP_URL + "?sheetName=SUMMARY_REPORT_ACTION", { method: 'POST' });
         const data = await response.json();
         
         historyList.innerHTML = '<h5 class="fw-bold mb-3 text-primary"><i class="fas fa-file-contract me-2"></i>Summary Overview</h5>';
+        let grandTotal = 0;
+
         data.forEach(item => {
+            const amt = parseFloat(item.total) || 0;
+            grandTotal += amt;
             historyList.innerHTML += `
-                <div class="record-card" style="border-left-color: #0891b2">
-                    <div class="record-cat">${item.name}</div>
-                    <div class="record-amt" style="color: #0891b2">${Number(item.total).toLocaleString()}</div>
+                <div class="record-card" style="border-left: 5px solid #0891b2; margin-bottom: 10px;">
+                    <div class="record-cat" style="font-size: 1.1rem;">${item.name}</div>
+                    <div class="record-amt" style="color: #0891b2; font-weight: bold;">${amt.toLocaleString()}</div>
                 </div>
             `;
         });
+
+        // ထိပ်ဆုံးက Total Card မှာ Grand Total ပြရန်
+        document.getElementById('totalAmount').innerText = grandTotal.toLocaleString();
+        document.getElementById('sheetLabel').innerText = "ALL GROUPS TOTAL";
+        document.getElementById('currencyText').innerText = "MMK";
+        
         toggleSidebar();
     } catch (error) {
+        console.error(error);
         alert("Report ထုတ်မရပါ။");
+        formContainer.style.display = 'block'; // Error တက်လျှင် Form ပြန်ပြမည်
     }
 }
