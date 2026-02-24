@@ -1,4 +1,4 @@
-const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbw9oqCSvnz8qW0GH7Kx5Tf0spq3TLUVi3yH9f6SoMooFHV54iZ4Q1tJSNS_GdrouOzH/exec"; 
+const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyTDLmO8qpOhck_epiFF2bZqGPNYlui-GP_C8IR2ujoxYhqlA9choIgtnwoBTPqLQwR/exec"; 
 
 function getTodayLocal() {
     const now = new Date();
