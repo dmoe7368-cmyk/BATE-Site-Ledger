@@ -1,4 +1,4 @@
-const WEB_APP_URL = "သင်၏_GOOGLE_APPS_SCRIPT_URL_ဒီမှာထည့်ပါ";
+const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxvIS1z5vSaaRDGaEYcUUovrHTEAIlnfu8KAzYgTiS2hv2F-jh66XFAvf0OSSgVAT46/exec";
 const correctPin = "1234";
 let activeSheet = "ဆန်းဦး";
 
