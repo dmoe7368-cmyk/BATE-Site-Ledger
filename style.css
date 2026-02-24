@@ -1,0 +1,103 @@
+:root {
+    --primary-dark: #0f172a;
+    --accent-red: #ef4444;
+    --sg-theme: linear-gradient(135deg, #e11d48, #fb7185);
+    --report-theme: linear-gradient(135deg, #0891b2, #22d3ee);
+    --default-theme: linear-gradient(135deg, #1e293b, #334155);
+    --sidebar-width: 290px;
+}
+
+body {
+    background: #f8fafc;
+    font-family: 'Inter', system-ui, sans-serif;
+    margin: 0;
+    overflow: hidden; /* Body scroll ကို ပိတ်ပြီး content ကိုပဲ scroll လုပ်မည် */
+}
+
+/* ၁။ Fixed Header & Summary Section */
+.sticky-header {
+    position: fixed;
+    top: 0; left: 0; width: 100%;
+    z-index: 1100;
+    background: #f8fafc;
+}
+
+.top-nav {
+    background: white;
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.menu-btn { font-size: 22px; color: var(--primary-dark); cursor: pointer; }
+
+.summary-area { padding: 12px 16px 16px; }
+
+.summary-card {
+    background: var(--default-theme);
+    color: white; border-radius: 24px; padding: 25px;
+    text-align: center; position: relative; overflow: hidden;
+    transition: all 0.4s ease;
+}
+
+/* Singapore Theme အရောင် */
+.summary-card.sg-theme { background: var(--sg-theme); }
+
+/* Report Theme အရောင် */
+.summary-card.report-theme { background: var(--report-theme); }
+
+.total-amount { font-size: 2.8rem; font-weight: 800; margin: 4px 0; letter-spacing: -1px; }
+.total-label { font-size: 0.65rem; letter-spacing: 3px; opacity: 0.7; font-weight: bold; }
+.currency-badge { display: inline-block; padding: 5px 15px; background: rgba(255,255,255,0.15); border-radius: 50px; font-size: 0.75rem; font-weight: 700; }
+
+/* ၂။ Scrollable Content */
+.content-body {
+    height: 100vh;
+    overflow-y: auto;
+    padding-top: 260px; /* Fixed Header ရဲ့ အမြင့်အတိုင်း ချိန်ထားသည် */
+    -webkit-overflow-scrolling: touch;
+}
+
+.container-fluid { max-width: 550px; padding-bottom: 120px; }
+
+/* ၃။ Sidebar UI */
+#sidebar {
+    position: fixed; left: calc(var(--sidebar-width) * -1); top: 0;
+    width: var(--sidebar-width); height: 100%; background: var(--primary-dark);
+    transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1); z-index: 2001;
+    display: flex; flex-direction: column; overflow-y: auto;
+}
+#sidebar.active { left: 0; }
+.sidebar-header { padding: 25px; border-bottom: 1px solid rgba(255,255,255,0.05); color: white; }
+
+.menu-item {
+    padding: 14px 25px; color: #94a3b8; display: flex; align-items: center;
+    cursor: pointer; transition: 0.2s; font-size: 0.9rem;
+}
+.menu-item i { width: 25px; margin-right: 12px; font-size: 1.1rem; }
+.menu-item.active { background: rgba(255,255,255,0.05); color: white; border-left: 4px solid var(--accent-red); }
+
+.sg-menu-item { color: #fb7185 !important; font-weight: bold; margin-top: 10px; }
+.report-menu-item { color: #22d3ee !important; font-weight: bold; }
+.divider { height: 1px; background: rgba(255,255,255,0.1); margin: 15px 25px; }
+
+/* ၄။ Input & Records Card */
+.input-box { background: white; border-radius: 20px; padding: 20px; margin-bottom: 25px; border: 1px solid #f1f5f9; }
+.field-label { font-size: 0.6rem; font-weight: 800; color: #64748b; letter-spacing: 1px; margin-bottom: 4px; display: block; }
+.custom-input { border-radius: 12px; border: 1.5px solid #f1f5f9; padding: 10px; font-size: 0.9rem; background: #f8fafc; }
+
+.btn-save { background: var(--accent-red); color: white; border: none; border-radius: 14px; padding: 14px; font-weight: 700; transition: 0.2s; }
+.btn-save:active { transform: scale(0.97); }
+
+.record-card {
+    background: white; border-radius: 16px; padding: 16px; margin-bottom: 12px;
+    display: flex; justify-content: space-between; align-items: center;
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); border-left: 5px solid var(--primary-dark);
+}
+
+/* ၅။ Login & Overlay */
+#loginPage { position: fixed; inset: 0; background: var(--primary-dark); display: flex; align-items: center; justify-content: center; z-index: 3000; }
+.login-logo { width: 70px; height: 70px; background: rgba(255,255,255,0.1); border-radius: 20px; display: flex; align-items: center; justify-content: center; }
+.login-field { background: rgba(255,255,255,0.05) !important; color: white !important; border: 1px solid rgba(255,255,255,0.1) !important; border-radius: 12px; }
+#overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 2000; backdrop-filter: blur(4px); }
