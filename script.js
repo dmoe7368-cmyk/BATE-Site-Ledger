@@ -25,7 +25,8 @@ function toggleSidebar() {
 }
 
 function changeSheet(name, currency, element) {
-    document.getElementById('entryForm').parentElement.style.display = 'block';
+    // Form နဲ့ List ကို ပြန်ပြမယ်
+    document.getElementById('formContainer').style.display = 'block';
     document.getElementById('historyList').style.display = 'block';
     
     document.getElementById('sheetNameInput').value = name;
@@ -47,7 +48,6 @@ function changeSheet(name, currency, element) {
 async function loadData() {
     const sheetName = document.getElementById('sheetNameInput').value;
     const historyList = document.getElementById('historyList');
-    const currency = document.getElementById('currencyText').innerText;
     historyList.innerHTML = '<div class="text-center p-4"><i class="fas fa-spinner fa-spin"></i> Loading...</div>';
 
     try {
@@ -57,25 +57,29 @@ async function loadData() {
         let total = 0;
         historyList.innerHTML = '';
         
-        data.forEach(item => {
-            const cleanAmount = parseFloat(String(item.amount).replace(/,/g, '')) || 0;
-            total += cleanAmount;
-            
-            historyList.innerHTML += `
-                <div class="record-card">
-                    <div>
-                        <div class="record-cat">${item.category}</div>
-                        <div class="record-date">${item.date}</div>
+        if (data.length === 0) {
+            historyList.innerHTML = '<div class="text-center p-4">ဒေတာ မရှိသေးပါ။</div>';
+        } else {
+            data.forEach(item => {
+                const cleanAmount = parseFloat(String(item.amount).replace(/,/g, '')) || 0;
+                total += cleanAmount;
+                
+                historyList.innerHTML += `
+                    <div class="record-card">
+                        <div>
+                            <div class="record-cat">${item.category}</div>
+                            <div class="record-date">${item.date}</div>
+                        </div>
+                        <div class="record-amt">${cleanAmount.toLocaleString()}</div>
                     </div>
-                    <div class="record-amt">${cleanAmount.toLocaleString()}</div>
-                </div>
-            `;
-        });
+                `;
+            });
+        }
 
         document.getElementById('totalAmount').innerText = total.toLocaleString();
         document.getElementById('recordCount').innerText = data.length + " Items";
     } catch (error) {
-        historyList.innerHTML = '<div class="text-center text-danger p-4">ဒေတာ မရှိသေးပါ။</div>';
+        historyList.innerHTML = '<div class="text-center text-danger p-4">ဒေတာဆွဲယူရာတွင် အမှားအယွင်းရှိပါသည်။</div>';
     }
 }
 
@@ -85,14 +89,10 @@ document.getElementById('entryForm').onsubmit = async (e) => {
     submitBtn.disabled = true;
     submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> SENDING...';
 
-    const rawDate = document.getElementById('dateField').value;
-    const parts = rawDate.split("-"); 
-    const formattedDate = `${parts[2]}/${parts[1]}/${parts[0]}`;
-
     const formData = new FormData(e.target);
     const params = new URLSearchParams();
     for (const pair of formData.entries()) {
-        params.append(pair[0], pair[0] === 'date' ? formattedDate : pair[1]);
+        params.append(pair[0], pair[1]);
     }
     
     try {
@@ -109,9 +109,10 @@ document.getElementById('entryForm').onsubmit = async (e) => {
     }
 };
 
+// --- SUMMARY REPORT ပြင်ဆင်ချက် ---
 async function showSummaryReport(element) {
     const historyList = document.getElementById('historyList');
-    const formContainer = document.getElementById('entryForm').parentElement;
+    const formContainer = document.getElementById('formContainer'); // Form ရှိတဲ့ div ကို ဖျောက်မယ်
 
     formContainer.style.display = 'none'; 
     historyList.innerHTML = '<div class="text-center p-4"><i class="fas fa-spinner fa-spin"></i> Generating Report...</div>';
@@ -121,17 +122,18 @@ async function showSummaryReport(element) {
     document.getElementById('headerTitle').innerText = "ALL GROUPS SUMMARY";
 
     try {
-        const response = await fetch(WEB_APP_URL + "?sheetName=SUMMARY_REPORT_ACTION", { method: 'POST' });
+        // SUMMARY_REPORT_ACTION ကို POST အစား URL မှာ action အနေနဲ့ ပို့ကြည့်ပါ
+        const response = await fetch(`${WEB_APP_URL}?action=summary`);
         const result = await response.json(); 
         
-        historyList.innerHTML = '<h5 class="fw-bold mb-3 text-primary"><i class="fas fa-file-contract me-2"></i>MMK Summary Overview</h5>';
+        historyList.innerHTML = '<h6 class="fw-bold mb-3 text-secondary">MMK SUMMARY OVERVIEW</h6>';
         
         result.details.forEach(item => {
             historyList.innerHTML += `
                 <div class="record-card" style="border-left: 5px solid #0891b2; margin-bottom: 10px;">
-                    <div class="record-cat" style="font-size: 1.1rem;">${item.name}</div>
+                    <div class="record-cat" style="font-size: 1rem;">${item.name}</div>
                     <div class="record-amt" style="color: #0891b2; font-weight: bold;">
-                        ${item.total.toLocaleString()} <small>MMK</small>
+                        ${item.total.toLocaleString()} <small style="font-size: 0.6rem">MMK</small>
                     </div>
                 </div>
             `;
@@ -140,10 +142,12 @@ async function showSummaryReport(element) {
         document.getElementById('totalAmount').innerText = result.mmkGrandTotal.toLocaleString();
         document.getElementById('currencyText').innerText = "MMK";
         document.getElementById('sheetLabel').innerText = "GRAND TOTAL (MMK)";
+        document.getElementById('recordCount').innerText = result.details.length + " Groups";
         
         toggleSidebar();
     } catch (error) {
-        alert("Report ထုတ်မရပါ။");
+        console.error(error);
+        alert("Report ထုတ်မရပါ။ Formula Sheet ပြင်ဆင်ထားမှု ရှိမရှိ စစ်ဆေးပါ။");
         formContainer.style.display = 'block';
     }
 }
