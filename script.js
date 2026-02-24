@@ -1,4 +1,4 @@
-const WEB_APP_URL = "https://script.google.com/macros/s/AKfycby6H2I2YKaCrwbiaF6WTe0qI0gp5cGgZ7IaXBcH6kuTxE4dfi-5uhRwaRTTbfo3F7q9/exec"; 
+const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyRi7r8Ae0gy1A5TUbM8D7KvnjoR3eIiDwrHDcOE7faukHs_vgCO4pIZzpzc3U_7fVk/exec"; 
 
 // ၁။ ယနေ့ရက်စွဲယူရန်
 function getTodayLocal() {
