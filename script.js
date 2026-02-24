@@ -1,5 +1,13 @@
 const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxvIS1z5vSaaRDGaEYcUUovrHTEAIlnfu8KAzYgTiS2hv2F-jh66XFAvf0OSSgVAT46/exec"; 
 
+// ယနေ့ရက်စွဲကို Local Format (YYYY-MM-DD) ဖြင့် ရယူရန် Function
+function getTodayLocal() {
+    const now = new Date();
+    const offset = now.getTimezoneOffset() * 60000; // local offset
+    const localISOTime = (new Date(now - offset)).toISOString().split('T')[0];
+    return localISOTime;
+}
+
 // ၁။ Login စစ်ဆေးခြင်း
 function checkLogin() {
     const pin = document.getElementById('pinInput').value;
@@ -8,9 +16,8 @@ function checkLogin() {
         document.getElementById('mainApp').style.display = 'block';
         document.body.style.overflow = 'auto';
         
-        // ယနေ့ရက်စွဲကို Calendar တွင် အလိုအလျောက် ပေါ်နေစေရန်
-        const today = new Date().toISOString().split('T')[0];
-        document.getElementById('dateField').value = today;
+        // ယနေ့ရက်စွဲကို Calendar တွင် Local အချိန်အတိုင်း သတ်မှတ်ရန်
+        document.getElementById('dateField').value = getTodayLocal();
         
         loadData(); 
     } else {
@@ -58,7 +65,6 @@ async function loadData() {
         historyList.innerHTML = '';
         
         data.forEach(item => {
-            // Amount ထဲတွင် comma ပါပါက ဖယ်ထုတ်ပြီး ပေါင်းမည်
             const cleanAmount = parseFloat(String(item.amount).replace(/,/g, '')) || 0;
             total += cleanAmount;
             
@@ -80,28 +86,27 @@ async function loadData() {
     }
 }
 
-// ၅။ စာရင်းအသစ်သွင်းခြင်း (ရက်စွဲ format ကို DD/MM/YYYY သို့ ပြောင်းလဲခြင်း)
+// ၅။ စာရင်းအသစ်သွင်းခြင်း (Timezone ကင်းလွတ်သော ရက်စွဲပြင်ဆင်မှု)
 document.getElementById('entryForm').onsubmit = async (e) => {
     e.preventDefault();
     const submitBtn = e.target.querySelector('button');
     submitBtn.disabled = true;
     submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> SENDING...';
 
-    // ရက်စွဲ format ကို YYYY-MM-DD မှ DD/MM/YYYY သို့ ပြောင်းခြင်း
-    const rawDate = document.getElementById('dateField').value;
-    let formattedDate = rawDate;
+    // ရက်စွဲ format ကို input မှ တိုက်ရိုက်ယူပြီး DD/MM/YYYY ပြောင်းခြင်း
+    const rawDate = document.getElementById('dateField').value; // YYYY-MM-DD
+    let formattedDate = "";
     if(rawDate) {
-        const parts = rawDate.split("-"); // [YYYY, MM, DD]
+        const parts = rawDate.split("-"); 
         formattedDate = `${parts[2]}/${parts[1]}/${parts[0]}`; // DD/MM/YYYY
     }
 
     const formData = new FormData(e.target);
     const params = new URLSearchParams();
     
-    // FormData ထဲမှ data များကို parameter အဖြစ်ပြောင်းပြီး date ကို format အသစ်ဖြင့် အစားထိုးသည်
     for (const pair of formData.entries()) {
         if(pair[0] === 'date') {
-            params.append(pair[0], formattedDate);
+            params.append('date', formattedDate); 
         } else {
             params.append(pair[0], pair[1]);
         }
@@ -113,8 +118,9 @@ document.getElementById('entryForm').onsubmit = async (e) => {
             body: params
         });
         e.target.reset();
-        // Reset ပြီးလျှင် ယနေ့ရက်စွဲကို ပြန်ထည့်ထားမည်
-        document.getElementById('dateField').value = new Date().toISOString().split('T')[0];
+        
+        // Reset လုပ်ပြီးလျှင် Local ရက်စွဲကို ပြန်ဖြည့်ထားပေးရန်
+        document.getElementById('dateField').value = getTodayLocal();
         
         alert("စာရင်းသွင်းပြီးပါပြီ။");
         loadData(); 
