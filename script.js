@@ -1,21 +1,19 @@
-const WEB_APP_URL = "https://script.google.com/macros/s/AKfycby99lAphFNkCL9ep-2XmzV0HYoYcFKECQdjio4YBjMerguv7diEe9_g2Nozatg29XwJ/exec"; 
+const WEB_APP_URL = "https://script.google.com/macros/s/AKfycby6H2I2YKaCrwbiaF6WTe0qI0gp5cGgZ7IaXBcH6kuTxE4dfi-5uhRwaRTTbfo3F7q9/exec"; 
 
-// ယနေ့ရက်စွဲကို Local Format (YYYY-MM-DD) ဖြင့် ရယူရန် Function
+// ၁။ ယနေ့ရက်စွဲယူရန်
 function getTodayLocal() {
     const now = new Date();
-    const offset = now.getTimezoneOffset() * 60000; // local offset
-    const localISOTime = (new Date(now - offset)).toISOString().split('T')[0];
-    return localISOTime;
+    const offset = now.getTimezoneOffset() * 60000;
+    return (new Date(now - offset)).toISOString().split('T')[0];
 }
 
-// ၁။ Login စစ်ဆေးခြင်း
+// ၂။ Login စစ်ဆေးခြင်း
 function checkLogin() {
     const pin = document.getElementById('pinInput').value;
     if (pin === "1234") { 
         document.getElementById('loginPage').style.display = 'none';
         document.getElementById('mainApp').style.display = 'block';
         document.body.style.overflow = 'auto';
-        
         document.getElementById('dateField').value = getTodayLocal();
         loadData(); 
     } else {
@@ -23,7 +21,7 @@ function checkLogin() {
     }
 }
 
-// ၂။ Sidebar အဖွင့်အပိတ်
+// ၃။ Sidebar
 function toggleSidebar() {
     const sidebar = document.getElementById('sidebar');
     const overlay = document.getElementById('overlay');
@@ -31,10 +29,11 @@ function toggleSidebar() {
     overlay.style.display = sidebar.classList.contains('active') ? 'block' : 'none';
 }
 
-// ၃။ Sheet ပြောင်းခြင်း
+// ၄။ Sheet ပြောင်းခြင်း
 function changeSheet(name, currency, element) {
-    // Summary ကြည့်ပြီးပြန်လာလျှင် Form ပြန်ပြရန်
+    // Summary ကြည့်ပြီးပြန်လာလျှင် Form နှင့် List ကို ပြန်ပြရန်
     document.getElementById('entryForm').parentElement.style.display = 'block';
+    document.getElementById('historyList').style.display = 'block';
     
     document.getElementById('sheetNameInput').value = name;
     document.getElementById('headerTitle').innerText = name;
@@ -52,7 +51,7 @@ function changeSheet(name, currency, element) {
     loadData(); 
 }
 
-// ၄။ Google Sheets ထံမှ Data ဖတ်ခြင်း
+// ၅။ Data ဖတ်ခြင်း
 async function loadData() {
     const sheetName = document.getElementById('sheetNameInput').value;
     const historyList = document.getElementById('historyList');
@@ -83,11 +82,11 @@ async function loadData() {
         document.getElementById('totalAmount').innerText = total.toLocaleString();
         document.getElementById('recordCount').innerText = data.length + " Items";
     } catch (error) {
-        historyList.innerHTML = '<div class="text-center text-danger p-4">ဒေတာ မရှိသေးပါ သို့မဟုတ် URL ကိုစစ်ပါ။</div>';
+        historyList.innerHTML = '<div class="text-center text-danger p-4">ဒေတာ မရှိသေးပါ။</div>';
     }
 }
 
-// ၅။ စာရင်းအသစ်သွင်းခြင်း
+// ၆။ စာရင်းသွင်းခြင်း
 document.getElementById('entryForm').onsubmit = async (e) => {
     e.preventDefault();
     const submitBtn = e.target.querySelector('button');
@@ -95,28 +94,18 @@ document.getElementById('entryForm').onsubmit = async (e) => {
     submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> SENDING...';
 
     const rawDate = document.getElementById('dateField').value;
-    let formattedDate = "";
-    if(rawDate) {
-        const parts = rawDate.split("-"); 
-        formattedDate = `${parts[2]}/${parts[1]}/${parts[0]}`;
-    }
+    const parts = rawDate.split("-"); 
+    const formattedDate = `${parts[2]}/${parts[1]}/${parts[0]}`;
 
     const formData = new FormData(e.target);
     const params = new URLSearchParams();
     
     for (const pair of formData.entries()) {
-        if(pair[0] === 'date') {
-            params.append('date', formattedDate); 
-        } else {
-            params.append(pair[0], pair[1]);
-        }
+        params.append(pair[0], pair[0] === 'date' ? formattedDate : pair[1]);
     }
     
     try {
-        await fetch(WEB_APP_URL, {
-            method: 'POST',
-            body: params
-        });
+        await fetch(WEB_APP_URL, { method: 'POST', body: params });
         e.target.reset();
         document.getElementById('dateField').value = getTodayLocal();
         alert("စာရင်းသွင်းပြီးပါပြီ။");
@@ -129,13 +118,12 @@ document.getElementById('entryForm').onsubmit = async (e) => {
     }
 };
 
-// ၆။ Summary Report ထုတ်ခြင်း (FIXED: Bar/UI ပြဿနာ ဖြေရှင်းပြီး)
+// ၇။ Summary Report (FIXED: MMK နှင့် SGD ခွဲပြခြင်း)
 async function showSummaryReport(element) {
     const historyList = document.getElementById('historyList');
-    const formContainer = document.getElementById('entryForm').parentElement; // Form အကွက်ကို ယူသည်
+    const formContainer = document.getElementById('entryForm').parentElement;
 
-    // UI အပြောင်းအလဲ - Form ကို ခေတ္တဖျောက်မည်
-    formContainer.style.display = 'none';
+    formContainer.style.display = 'none'; 
     historyList.innerHTML = '<div class="text-center p-4"><i class="fas fa-spinner fa-spin"></i> Generating Report...</div>';
     
     document.querySelectorAll('.menu-item').forEach(item => item.classList.remove('active'));
@@ -144,31 +132,34 @@ async function showSummaryReport(element) {
 
     try {
         const response = await fetch(WEB_APP_URL + "?sheetName=SUMMARY_REPORT_ACTION", { method: 'POST' });
-        const data = await response.json();
+        const result = await response.json(); // result ထဲမှာ details, mmkGrandTotal, sgdGrandTotal ပါရမယ်
         
         historyList.innerHTML = '<h5 class="fw-bold mb-3 text-primary"><i class="fas fa-file-contract me-2"></i>Summary Overview</h5>';
-        let grandTotal = 0;
-
-        data.forEach(item => {
-            const amt = parseFloat(item.total) || 0;
-            grandTotal += amt;
+        
+        // Group အလိုက် အသေးစိတ်ပြခြင်း
+        result.details.forEach(item => {
+            const isSGD = item.currency === "SGD";
             historyList.innerHTML += `
-                <div class="record-card" style="border-left: 5px solid #0891b2; margin-bottom: 10px;">
+                <div class="record-card" style="border-left: 5px solid ${isSGD ? '#ff9800' : '#0891b2'}; margin-bottom: 10px;">
                     <div class="record-cat" style="font-size: 1.1rem;">${item.name}</div>
-                    <div class="record-amt" style="color: #0891b2; font-weight: bold;">${amt.toLocaleString()}</div>
+                    <div class="record-amt" style="color: ${isSGD ? '#ff9800' : '#0891b2'}; font-weight: bold;">
+                        ${item.total.toLocaleString()} <small>${item.currency}</small>
+                    </div>
                 </div>
             `;
         });
 
-        // ထိပ်ဆုံးက Total Card မှာ Grand Total ပြရန်
-        document.getElementById('totalAmount').innerText = grandTotal.toLocaleString();
-        document.getElementById('sheetLabel').innerText = "ALL GROUPS TOTAL";
-        document.getElementById('currencyText').innerText = "MMK";
+        // အပေါ်က Card မှာ MMK နဲ့ SGD ခွဲပြရန်
+        document.getElementById('totalAmount').innerHTML = `
+            <div style="font-size: 1.4rem;">${result.mmkGrandTotal.toLocaleString()} <small style="font-size: 0.7rem;">MMK</small></div>
+            <div style="font-size: 1.4rem; color: #ffca28;">${result.sgdGrandTotal.toLocaleString()} <small style="font-size: 0.7rem;">SGD</small></div>
+        `;
+        document.getElementById('sheetLabel').innerText = "GRAND TOTAL BALANCES";
         
         toggleSidebar();
     } catch (error) {
         console.error(error);
         alert("Report ထုတ်မရပါ။");
-        formContainer.style.display = 'block'; // Error တက်လျှင် Form ပြန်ပြမည်
+        formContainer.style.display = 'block';
     }
 }
