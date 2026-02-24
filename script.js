@@ -1,11 +1,13 @@
 const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyTDLmO8qpOhck_epiFF2bZqGPNYlui-GP_C8IR2ujoxYhqlA9choIgtnwoBTPqLQwR/exec"; 
 
+// ယနေ့ရက်စွဲကို local အချိန်အတိုင်းရယူရန်
 function getTodayLocal() {
     const now = new Date();
     const offset = now.getTimezoneOffset() * 60000;
     return (new Date(now - offset)).toISOString().split('T')[0];
 }
 
+// PIN Login စစ်ဆေးရန်
 function checkLogin() {
     const pin = document.getElementById('pinInput').value;
     if (pin === "1234") { 
@@ -14,9 +16,12 @@ function checkLogin() {
         document.body.style.overflow = 'auto';
         document.getElementById('dateField').value = getTodayLocal();
         loadData(); 
-    } else { alert("PIN မှားယွင်းနေပါသည်။"); }
+    } else { 
+        alert("PIN မှားယွင်းနေပါသည်။"); 
+    }
 }
 
+// Sidebar ဖွင့်/ပိတ်ရန်
 function toggleSidebar() {
     const sidebar = document.getElementById('sidebar');
     const overlay = document.getElementById('overlay');
@@ -24,9 +29,10 @@ function toggleSidebar() {
     overlay.style.display = sidebar.classList.contains('active') ? 'block' : 'none';
 }
 
+// ရှိတ်တစ်ခုချင်းစီသို့ ပြောင်းလဲရန်
 function changeSheet(name, currency, element) {
-    // Form နဲ့ List ကို ပြန်ပြမယ်
-    document.getElementById('formContainer').style.display = 'block';
+    // Form နဲ့ History List ကို ပြန်ပြမယ်
+    document.getElementById('entryForm').parentElement.style.display = 'block';
     document.getElementById('historyList').style.display = 'block';
     
     document.getElementById('sheetNameInput').value = name;
@@ -45,6 +51,7 @@ function changeSheet(name, currency, element) {
     loadData(); 
 }
 
+// ဒေတာများ ဆွဲယူရန်
 async function loadData() {
     const sheetName = document.getElementById('sheetNameInput').value;
     const historyList = document.getElementById('historyList');
@@ -79,20 +86,25 @@ async function loadData() {
         document.getElementById('totalAmount').innerText = total.toLocaleString();
         document.getElementById('recordCount').innerText = data.length + " Items";
     } catch (error) {
-        historyList.innerHTML = '<div class="text-center text-danger p-4">ဒေတာဆွဲယူရာတွင် အမှားအယွင်းရှိပါသည်။</div>';
+        historyList.innerHTML = '<div class="text-center text-danger p-4">ဒေတာဆွဲယူမရပါ။</div>';
     }
 }
 
+// စာရင်းအသစ်သွင်းရန် (POST)
 document.getElementById('entryForm').onsubmit = async (e) => {
     e.preventDefault();
     const submitBtn = e.target.querySelector('button');
     submitBtn.disabled = true;
     submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> SENDING...';
 
+    const rawDate = document.getElementById('dateField').value; // yyyy-mm-dd format
+    const parts = rawDate.split("-"); 
+    const formattedDate = `${parts[2]}/${parts[1]}/${parts[0]}`; // dd/mm/yyyy for sheet
+
     const formData = new FormData(e.target);
     const params = new URLSearchParams();
     for (const pair of formData.entries()) {
-        params.append(pair[0], pair[1]);
+        params.append(pair[0], pair[0] === 'date' ? formattedDate : pair[1]);
     }
     
     try {
@@ -109,10 +121,10 @@ document.getElementById('entryForm').onsubmit = async (e) => {
     }
 };
 
-// --- SUMMARY REPORT ပြင်ဆင်ချက် ---
+// --- SUMMARY REPORT ပြသရန် (GET Method သို့ ပြောင်းထားသည်) ---
 async function showSummaryReport(element) {
     const historyList = document.getElementById('historyList');
-    const formContainer = document.getElementById('formContainer'); // Form ရှိတဲ့ div ကို ဖျောက်မယ်
+    const formContainer = document.getElementById('entryForm').parentElement;
 
     formContainer.style.display = 'none'; 
     historyList.innerHTML = '<div class="text-center p-4"><i class="fas fa-spinner fa-spin"></i> Generating Report...</div>';
@@ -122,22 +134,26 @@ async function showSummaryReport(element) {
     document.getElementById('headerTitle').innerText = "ALL GROUPS SUMMARY";
 
     try {
-        // SUMMARY_REPORT_ACTION ကို POST အစား URL မှာ action အနေနဲ့ ပို့ကြည့်ပါ
+        // action=summary ကို GET နဲ့ လှမ်းခေါ်ခြင်း
         const response = await fetch(`${WEB_APP_URL}?action=summary`);
         const result = await response.json(); 
         
         historyList.innerHTML = '<h6 class="fw-bold mb-3 text-secondary">MMK SUMMARY OVERVIEW</h6>';
         
-        result.details.forEach(item => {
-            historyList.innerHTML += `
-                <div class="record-card" style="border-left: 5px solid #0891b2; margin-bottom: 10px;">
-                    <div class="record-cat" style="font-size: 1rem;">${item.name}</div>
-                    <div class="record-amt" style="color: #0891b2; font-weight: bold;">
-                        ${item.total.toLocaleString()} <small style="font-size: 0.6rem">MMK</small>
+        if (!result.details || result.details.length === 0) {
+            historyList.innerHTML += '<div class="text-center">ဒေတာ မရှိပါ။</div>';
+        } else {
+            result.details.forEach(item => {
+                historyList.innerHTML += `
+                    <div class="record-card" style="border-left: 5px solid #0891b2; margin-bottom: 10px;">
+                        <div class="record-cat" style="font-size: 1rem;">${item.name}</div>
+                        <div class="record-amt" style="color: #0891b2; font-weight: bold;">
+                            ${item.total.toLocaleString()} <small style="font-size: 0.65rem">MMK</small>
+                        </div>
                     </div>
-                </div>
-            `;
-        });
+                `;
+            });
+        }
 
         document.getElementById('totalAmount').innerText = result.mmkGrandTotal.toLocaleString();
         document.getElementById('currencyText').innerText = "MMK";
@@ -146,8 +162,8 @@ async function showSummaryReport(element) {
         
         toggleSidebar();
     } catch (error) {
-        console.error(error);
-        alert("Report ထုတ်မရပါ။ Formula Sheet ပြင်ဆင်ထားမှု ရှိမရှိ စစ်ဆေးပါ။");
+        console.error("Summary Error:", error);
+        alert("Report ထုတ်မရပါ။ Formula Sheet အမည် 'Summary Report' မှန်မမှန် စစ်ဆေးပါ။");
         formContainer.style.display = 'block';
     }
 }
