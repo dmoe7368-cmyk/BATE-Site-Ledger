@@ -41,7 +41,7 @@
             <div class="menu-item" onclick="changeSheet('စာရွက်စာတန်းကြေး', 'MMK', this)"><i class="fas fa-file-invoice-dollar"></i> စာရွက်စာတန်းကြေး</div>
             
             <div class="divider"></div>
-            <div class="menu-item sg-menu-item" onclick="changeSheet('Singapore ငွေအဝင်', 'SGD', this)">
+            <div class="menu-item sg-menu-item" onclick="changeSheet('Singapore ငွေအဝင် SGD', 'SGD', this)">
                 <i class="fas fa-coins text-warning"></i> Singapore ငွေအဝင်
             </div>
             <div class="menu-item report-menu-item" onclick="showSummaryReport(this)">
@@ -63,7 +63,9 @@
                     <small id="sheetLabel" class="text-uppercase fw-bold opacity-75">CURRENT USAGE</small>
                     <div class="total-label">TOTAL USE</div>
                     <div class="total-amount" id="totalAmount">0</div>
-                    <div class="currency-badge shadow-sm"><i class="fas fa-wallet me-1"></i> <span id="currencyText">MMK</span></div>
+                    <div class="currency-badge shadow-sm">
+                        <i class="fas fa-wallet me-1"></i> <span id="currencyText">MMK</span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -84,7 +86,7 @@
                             </div>
                             <div class="col-12">
                                 <label class="field-label">AMOUNT</label>
-                                <input type="number" name="amount" class="form-control form-control-lg custom-input fw-bold" placeholder="0.00" required>
+                                <input type="number" step="any" name="amount" class="form-control form-control-lg custom-input fw-bold" placeholder="0.00" required>
                             </div>
                             <div class="col-12 mt-3">
                                 <button type="submit" class="btn btn-save w-100 shadow">
