@@ -1,4 +1,4 @@
-const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxvIS1z5vSaaRDGaEYcUUovrHTEAIlnfu8KAzYgTiS2hv2F-jh66XFAvf0OSSgVAT46/exec"; 
+const WEB_APP_URL = "https://script.google.com/macros/s/AKfycby99lAphFNkCL9ep-2XmzV0HYoYcFKECQdjio4YBjMerguv7diEe9_g2Nozatg29XwJ/exec"; 
 
 // ယနေ့ရက်စွဲကို Local Format (YYYY-MM-DD) ဖြင့် ရယူရန် Function
 function getTodayLocal() {
