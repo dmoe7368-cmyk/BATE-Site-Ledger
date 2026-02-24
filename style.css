@@ -11,7 +11,7 @@ body {
     background: #f8fafc;
     font-family: 'Inter', system-ui, sans-serif;
     margin: 0;
-    overflow: hidden; /* Body scroll ကို ပိတ်ပြီး content ကိုပဲ scroll လုပ်မည် */
+    overflow: hidden; /* Body တစ်ခုလုံး scroll ဖြစ်တာကို ပိတ်သည် */
 }
 
 /* ၁။ Fixed Header & Summary Section */
@@ -30,7 +30,22 @@ body {
     border-bottom: 1px solid #e2e8f0;
 }
 
-.menu-btn { font-size: 22px; color: var(--primary-dark); cursor: pointer; }
+/* PC မှာပါ Menu ခလုတ်ကို သေချာမြင်ရစေရန် */
+.menu-btn { 
+    font-size: 24px; 
+    color: var(--primary-dark); 
+    cursor: pointer; 
+    padding: 5px 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    transition: background 0.2s;
+}
+
+.menu-btn:hover {
+    background: #f1f5f9;
+}
 
 .summary-area { padding: 12px 16px 16px; }
 
@@ -39,55 +54,92 @@ body {
     color: white; border-radius: 24px; padding: 25px;
     text-align: center; position: relative; overflow: hidden;
     transition: all 0.4s ease;
+    box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1);
 }
 
-/* Singapore Theme အရောင် */
+/* Singapore & Report Themes */
 .summary-card.sg-theme { background: var(--sg-theme); }
-
-/* Report Theme အရောင် */
 .summary-card.report-theme { background: var(--report-theme); }
 
-.total-amount { font-size: 2.8rem; font-weight: 800; margin: 4px 0; letter-spacing: -1px; }
-.total-label { font-size: 0.65rem; letter-spacing: 3px; opacity: 0.7; font-weight: bold; }
+.total-amount { font-size: 2.5rem; font-weight: 800; margin: 4px 0; letter-spacing: -1px; }
+.total-label { font-size: 0.65rem; letter-spacing: 3px; opacity: 0.7; font-weight: bold; text-transform: uppercase; }
 .currency-badge { display: inline-block; padding: 5px 15px; background: rgba(255,255,255,0.15); border-radius: 50px; font-size: 0.75rem; font-weight: 700; }
 
-/* ၂။ Scrollable Content */
+/* ၂။ Scrollable Content Area */
 .content-body {
     height: 100vh;
     overflow-y: auto;
-    padding-top: 260px; /* Fixed Header ရဲ့ အမြင့်အတိုင်း ချိန်ထားသည် */
+    padding-top: 260px; /* Header အမြင့်အတိုင်း ပေးထားသည် */
     -webkit-overflow-scrolling: touch;
 }
 
-.container-fluid { max-width: 550px; padding-bottom: 120px; }
+/* PC မှာ ကြည့်ရင် Content က ဘေးကားမသွားအောင် ထိန်းထားသည် */
+.container-fluid { 
+    max-width: 550px; 
+    padding: 0 15px 120px; 
+    margin: 0 auto; 
+}
 
 /* ၃။ Sidebar UI */
 #sidebar {
-    position: fixed; left: calc(var(--sidebar-width) * -1); top: 0;
-    width: var(--sidebar-width); height: 100%; background: var(--primary-dark);
-    transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1); z-index: 2001;
-    display: flex; flex-direction: column; overflow-y: auto;
+    position: fixed; 
+    left: calc(var(--sidebar-width) * -1); 
+    top: 0;
+    width: var(--sidebar-width); 
+    height: 100%; 
+    background: var(--primary-dark);
+    transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1); 
+    z-index: 2001;
+    display: flex; 
+    flex-direction: column; 
+    overflow-y: auto;
 }
+
 #sidebar.active { left: 0; }
-.sidebar-header { padding: 25px; border-bottom: 1px solid rgba(255,255,255,0.05); color: white; }
+
+.sidebar-header { 
+    padding: 25px; 
+    border-bottom: 1px solid rgba(255,255,255,0.05); 
+    color: white; 
+    display: flex;
+    align-items: center;
+}
+
+.menu-list { padding: 10px 0; }
 
 .menu-item {
-    padding: 14px 25px; color: #94a3b8; display: flex; align-items: center;
-    cursor: pointer; transition: 0.2s; font-size: 0.9rem;
+    padding: 14px 25px; 
+    color: #94a3b8; 
+    display: flex; 
+    align-items: center;
+    cursor: pointer; 
+    transition: 0.2s; 
+    font-size: 0.95rem;
+    text-decoration: none;
 }
-.menu-item i { width: 25px; margin-right: 12px; font-size: 1.1rem; }
-.menu-item.active { background: rgba(255,255,255,0.05); color: white; border-left: 4px solid var(--accent-red); }
+
+.menu-item i { width: 30px; font-size: 1.1rem; }
+
+.menu-item:hover { background: rgba(255,255,255,0.03); color: white; }
+
+.menu-item.active { 
+    background: rgba(255,255,255,0.08); 
+    color: white; 
+    border-left: 4px solid var(--accent-red); 
+}
 
 .sg-menu-item { color: #fb7185 !important; font-weight: bold; margin-top: 10px; }
 .report-menu-item { color: #22d3ee !important; font-weight: bold; }
 .divider { height: 1px; background: rgba(255,255,255,0.1); margin: 15px 25px; }
 
-/* ၄။ Input & Records Card */
-.input-box { background: white; border-radius: 20px; padding: 20px; margin-bottom: 25px; border: 1px solid #f1f5f9; }
-.field-label { font-size: 0.6rem; font-weight: 800; color: #64748b; letter-spacing: 1px; margin-bottom: 4px; display: block; }
-.custom-input { border-radius: 12px; border: 1.5px solid #f1f5f9; padding: 10px; font-size: 0.9rem; background: #f8fafc; }
+/* ၄။ Input Box & Records Card */
+.input-box { background: white; border-radius: 20px; padding: 20px; margin-bottom: 25px; border: 1px solid #f1f5f9; box-shadow: 0 1px 3px rgba(0,0,0,0.02); }
+.field-label { font-size: 0.65rem; font-weight: 800; color: #64748b; letter-spacing: 1px; margin-bottom: 6px; display: block; }
+.custom-input { border-radius: 12px; border: 1.5px solid #f1f5f9; padding: 12px; font-size: 1rem; background: #f8fafc; transition: 0.2s; }
+.custom-input:focus { border-color: var(--accent-red); outline: none; background: white; }
 
-.btn-save { background: var(--accent-red); color: white; border: none; border-radius: 14px; padding: 14px; font-weight: 700; transition: 0.2s; }
+.btn-save { background: var(--accent-red); color: white; border: none; border-radius: 14px; padding: 16px; font-weight: 700; transition: 0.2s; }
+.btn-save:hover { filter: brightness(1.1); }
 .btn-save:active { transform: scale(0.97); }
 
 .record-card {
@@ -96,8 +148,44 @@ body {
     box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); border-left: 5px solid var(--primary-dark);
 }
 
+.record-date { font-size: 0.75rem; color: #94a3b8; font-weight: 600; }
+.record-cat { font-size: 0.95rem; font-weight: 700; color: var(--primary-dark); }
+.record-amt { font-size: 1rem; font-weight: 800; color: var(--accent-red); }
+
 /* ၅။ Login & Overlay */
-#loginPage { position: fixed; inset: 0; background: var(--primary-dark); display: flex; align-items: center; justify-content: center; z-index: 3000; }
-.login-logo { width: 70px; height: 70px; background: rgba(255,255,255,0.1); border-radius: 20px; display: flex; align-items: center; justify-content: center; }
-.login-field { background: rgba(255,255,255,0.05) !important; color: white !important; border: 1px solid rgba(255,255,255,0.1) !important; border-radius: 12px; }
-#overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 2000; backdrop-filter: blur(4px); }
+#loginPage { 
+    position: fixed; inset: 0; 
+    background: var(--primary-dark); 
+    display: flex; align-items: center; justify-content: center; 
+    z-index: 3000; 
+}
+
+.login-logo { 
+    width: 80px; height: 80px; 
+    background: rgba(255,255,255,0.1); 
+    border-radius: 22px; 
+    display: flex; align-items: center; justify-content: center; 
+    margin: 0 auto 20px;
+}
+
+.login-field { 
+    background: rgba(255,255,255,0.05) !important; 
+    color: white !important; 
+    border: 1px solid rgba(255,255,255,0.1) !important; 
+    border-radius: 12px; 
+    height: 55px;
+    font-size: 1.2rem;
+    letter-spacing: 5px;
+}
+
+#overlay { 
+    display: none; 
+    position: fixed; inset: 0; 
+    background: rgba(0,0,0,0.4); 
+    z-index: 2000; 
+    backdrop-filter: blur(4px); 
+}
+
+/* Hide Scrollbar (Optional - clean look အတွက်) */
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
